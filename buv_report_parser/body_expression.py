@@ -1,27 +1,19 @@
 from .context import Context
-from .expression import Expression
+from .multiline_expression import MultilineExpression
+from .blank_lines_expression import BlankLinesExpression
+from .separator_line_expression import SeparatorLineExpression
 import re
 
 
-class BodyExpression(Expression):
+class BodyExpression(MultilineExpression):
     def __init__(self):
         super().__init__()
 
-        self.__separator_line_pattern = "^-{10,}$"
-
-        self.__separator_line_re = re.compile(self.__separator_line_pattern)
-
-    def parse(self, context: Context):
+    @classmethod
+    def parse(cls, context: Context):
         if context.pos.char != 0:
-            return False
+            return None
 
-        self._parse_blank_lines(context)
+        BlankLinesExpression.parse(context)
 
-        self.__parse_separator_line(context)
-
-    def __parse_separator_line(self, context: Context):
-        match = self.__separator_line_re.match(context.lines[context.pos.line])
-        if match:
-            context.pos.line += 1
-            return True
-        return False
+        SeparatorLineExpression.parse(context)
